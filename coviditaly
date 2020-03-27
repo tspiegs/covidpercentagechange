@@ -1,0 +1,35 @@
+#!/bin/bash
+datadeaths=$(curl -s https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv)
+datacases=$(curl -s https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv)
+
+dratetoday=$(echo "$datadeaths" | grep Italy | awk -F',' '{ diff = $NF - $(NF-1) ; avg = ($NF + $(NF-1)) / 2 ; print (diff / avg) * 100}')
+caseratetoday=$(echo "$datacases" | grep Italy | awk -F',' '{ diff = $NF - $(NF-1) ; avg = ($NF + $(NF-1)) / 2 ; print (diff / avg) * 100}')
+
+casestoday=$(echo "$datacases" | grep Italy | awk -F',' '{print $NF}')
+deathtoday=$(echo "$datadeaths" | grep Italy | awk -F',' '{print $NF}')
+
+drateyday=$(echo "$datadeaths" | grep Italy | awk -F',' '{ for (i=1; i<=5; i++){ diff = $(NF-i) - $(NF-(i+1)); avg = ($(NF-i) + $(NF-(i+1))) / 2 ; printf (diff / avg) * 100"% "}}')
+caserateyday=$(echo "$datacases" | grep Italy | awk -F',' '{ for (i=1; i<=5; i++){ diff = $(NF-i) - $(NF-(i+1)); avg = ($(NF-i) + $(NF-(i+1))) / 2 ; printf (diff / avg) * 100"% "}}')
+
+avgdrate=$(echo "$datadeaths" | grep Italy | awk -F',' '{ for (i=0; i<=6; i++){ diff = $(NF-i) - $(NF-(i+1)); avg = ($(NF-i) + $(NF-(i+1))) / 2 ; print (diff / avg) * 100}}' | awk '{ total += $1; count++ } END { print total/count }')
+avgcaserate=$(echo "$datacases" | grep Italy | awk -F',' '{ for (i=0; i<=6; i++){ diff = $(NF-i) - $(NF-(i+1)); avg = ($(NF-i) + $(NF-(i+1))) / 2 ; print (diff / avg) * 100}}' | awk '{ total += $1; count++ } END { print total/count }')
+
+echo "Confirmed Italy Cases: Yesterday the difference in confirmed cases from the day before was $caseratetoday %, in contrast the 5 previous days are: $caserateyday
+Confirmed Italy Deaths: Yesterday the difference in confirmed deaths from the day before was $dratetoday %, in contrast the 5 previous days are $drateyday" 
+echo ""
+echo "The average death rate is $avgdrate % over the last 7 days"
+echo "The average case rate is $avgcaserate % over the last 7 days"
+echo ""
+casesinweek=$(echo "scale=5;$casestoday*(1+$avgcaserate/100)^7" | bc)
+casesinmonth=$(echo "scale=5;$casestoday*(1+$avgcaserate/100)^30" | bc)
+
+echo "using just the above averages, these are the projections if no changes to growth occur:"
+echo "Current cases is $casestoday the expected cases in 7 days is $casesinweek"
+echo "Current cases is $casestoday the expected cases in 30 days is $casesinmonth"
+echo ""
+
+deathinweek=$(echo "scale=5;$deathtoday*(1+$avgdrate/100)^7" | bc)
+deathinmonth=$(echo "scale=5;$deathtoday*(1+$avgdrate/100)^30" | bc)
+
+echo "Current deaths are $deathtoday the expected deaths in 7 days is $deathinweek"
+echo "Current deaths are $deathtoday the expected deaths in 30 days is $deathinmonth"
