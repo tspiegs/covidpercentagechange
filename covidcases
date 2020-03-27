@@ -1,0 +1,9 @@
+#!/bin/bash
+datadeaths=$(curl -s https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv)
+datacases=$(curl -s https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv)
+
+dratetoday=$(echo "$datadeaths" | grep US | awk -F',' '{ diff = $NF - $(NF-1) ; avg = ($NF + $(NF-1)) / 2 ; print (diff / avg) * 100}')
+caseratetoday=$(echo "$datacases" | grep US | awk -F',' '{ diff = $NF - $(NF-1) ; avg = ($NF + $(NF-1)) / 2 ; print (diff / avg) * 100}')
+
+echo "Yesterday the difference in confirmed cases from the day before was $caseratetoday %, 
+Yesterday the difference in confirmed deaths from the day before was $dratetoday %"
