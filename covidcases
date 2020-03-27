@@ -5,5 +5,7 @@ datacases=$(curl -s https://raw.githubusercontent.com/CSSEGISandData/COVID-19/ma
 dratetoday=$(echo "$datadeaths" | grep US | awk -F',' '{ diff = $NF - $(NF-1) ; avg = ($NF + $(NF-1)) / 2 ; print (diff / avg) * 100}')
 caseratetoday=$(echo "$datacases" | grep US | awk -F',' '{ diff = $NF - $(NF-1) ; avg = ($NF + $(NF-1)) / 2 ; print (diff / avg) * 100}')
 
-echo "Yesterday the difference in confirmed cases from the day before was $caseratetoday %, 
-Yesterday the difference in confirmed deaths from the day before was $dratetoday %"
+drateyday=$(echo "$datadeaths" | grep US | awk -F',' '{ diff = $(NF-1) - $(NF-2) ; avg = ($(NF-1) + $(NF-2)) / 2 ; print (diff / avg) * 100}')
+caserateyday=$(echo "$datacases" | grep US | awk -F',' '{ diff = $(NF-1) - $(NF-2) ; avg = ($(NF-1) + $(NF-2)) / 2 ; print (diff / avg) * 100}')
+echo "In the US: Yesterday the difference in confirmed cases from the day before was $caseratetoday %, in contrast the day before was $caserateyday %
+Yesterday the difference in confirmed deaths from the day before was $dratetoday %, in contrast the day before was $drateyday %"
